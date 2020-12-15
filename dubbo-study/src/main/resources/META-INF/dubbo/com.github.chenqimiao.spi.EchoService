@@ -1,0 +1,2 @@
+default = com.github.chenqimiao.spi.DefaultEchoService
+fast = com.github.chenqimiao.spi.FastEchoService
