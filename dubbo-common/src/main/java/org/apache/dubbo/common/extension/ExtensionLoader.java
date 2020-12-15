@@ -123,6 +123,7 @@ public class ExtensionLoader<T> {
      * @since 2.7.7
      */
     private static LoadingStrategy[] loadLoadingStrategies() {
+        // 通过 JDK SPI 的方式加载策略
         return stream(load(LoadingStrategy.class).spliterator(), false)
                 .sorted()
                 .toArray(LoadingStrategy[]::new);
@@ -141,6 +142,7 @@ public class ExtensionLoader<T> {
     }
 
     private ExtensionLoader(Class<?> type) {
+        // 构造器传入 type
         this.type = type;
         objectFactory = (type == ExtensionFactory.class ? null : ExtensionLoader.getExtensionLoader(ExtensionFactory.class).getAdaptiveExtension());
     }
@@ -623,6 +625,15 @@ public class ExtensionLoader<T> {
         return new IllegalStateException(buf.toString());
     }
 
+    /**
+     * 1.通过 getExtensionClasses 获取所有的拓展类
+     * 2.通过反射创建拓展对象
+     * 3.向拓展对象中注入依赖
+     * 4.将拓展对象包裹在相应的 Wrapper 对象中
+     * @param name
+     * @param wrap
+     * @return
+     */
     @SuppressWarnings("unchecked")
     private T createExtension(String name, boolean wrap) {
         Class<?> clazz = getExtensionClasses().get(name);
@@ -635,6 +646,7 @@ public class ExtensionLoader<T> {
                 EXTENSION_INSTANCES.putIfAbsent(clazz, clazz.newInstance());
                 instance = (T) EXTENSION_INSTANCES.get(clazz);
             }
+            // DI
             injectExtension(instance);
 
 
@@ -649,9 +661,11 @@ public class ExtensionLoader<T> {
 
                 if (CollectionUtils.isNotEmpty(wrapperClassesList)) {
                     for (Class<?> wrapperClass : wrapperClassesList) {
+                        // wrapper 可以理解为 简单的 AOP
                         Wrapper wrapper = wrapperClass.getAnnotation(Wrapper.class);
                         if (wrapper == null
                                 || (ArrayUtils.contains(wrapper.matches(), name) && !ArrayUtils.contains(wrapper.mismatches(), name))) {
+                            // 默认使用带一个参数的构造器进行 wrapper 化
                             instance = injectExtension((T) wrapperClass.getConstructor(type).newInstance(instance));
                         }
                     }
@@ -696,6 +710,7 @@ public class ExtensionLoader<T> {
                     String property = getSetterProperty(method);
                     Object object = objectFactory.getExtension(pt, property);
                     if (object != null) {
+                        // 通过调用 setter 方法进行依赖注入
                         method.invoke(instance, object);
                     }
                 } catch (Exception e) {
@@ -753,6 +768,7 @@ public class ExtensionLoader<T> {
 
     private Map<String, Class<?>> getExtensionClasses() {
         Map<String, Class<?>> classes = cachedClasses.get();
+        // 在 java 中使用 double check, 需要将引用类型声明为 volatile
         if (classes == null) {
             synchronized (cachedClasses) {
                 classes = cachedClasses.get();
@@ -798,6 +814,7 @@ public class ExtensionLoader<T> {
                         + ": " + Arrays.toString(names));
             }
             if (names.length == 1) {
+                // SPI 可以指定一个默认的 extensionName
                 cachedDefaultName = names[0];
             }
         }
