@@ -1,2 +1,4 @@
 default = com.github.chenqimiao.spi.DefaultEchoService
 fast = com.github.chenqimiao.spi.FastEchoService
+adaptive = com.github.chenqimiao.spi.AdaptiveEchoService
+urlSpecified = com.github.chenqimiao.spi.URLSpecifiedEchoService

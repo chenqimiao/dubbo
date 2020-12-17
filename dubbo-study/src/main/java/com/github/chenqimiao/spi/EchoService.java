@@ -1,5 +1,7 @@
 package com.github.chenqimiao.spi;
 
+import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.extension.Adaptive;
 import org.apache.dubbo.common.extension.SPI;
 
 /**
@@ -11,4 +13,7 @@ import org.apache.dubbo.common.extension.SPI;
 public interface EchoService {
 
     String echo(String message);
+
+    @Adaptive("echo.service")
+    String echo(URL url, String message);
 }
