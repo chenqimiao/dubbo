@@ -211,6 +211,7 @@ public class AdaptiveClassCodeGenerator {
                 code.append(generateUrlNullCheck(urlTypeIndex));
             } else {
                 // did not find parameter in URL type
+                // 直接参数没有URL，通过间接的方式查找URL
                 code.append(generateUrlAssignmentIndirectly(method));
             }
 
@@ -327,9 +328,11 @@ public class AdaptiveClassCodeGenerator {
      * get value of adaptive annotation or if empty return splitted simple name
      */
     private String[] getMethodAdaptiveValue(Adaptive adaptiveAnnotation) {
+        // 先取 @Adaptive 注解声明的默认属性
         String[] value = adaptiveAnnotation.value();
         // value is not set, use the value generated from class name as the key
         if (value.length == 0) {
+            // 没有则取 type, 通过 type.getSimpleName() 进行转化  EchoService -> echo.service
             String splitName = StringUtils.camelToSplitName(type.getSimpleName(), ".");
             value = new String[]{splitName};
         }
