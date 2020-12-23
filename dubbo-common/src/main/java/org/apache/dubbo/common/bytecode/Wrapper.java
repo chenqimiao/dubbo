@@ -227,7 +227,7 @@ public abstract class Wrapper {
         }
         c1.append(" throw new " + NoSuchPropertyException.class.getName() + "(\"Not found property \\\"\"+$2+\"\\\" field or setter method in class " + c.getName() + ".\"); }");
         c2.append(" throw new " + NoSuchPropertyException.class.getName() + "(\"Not found property \\\"\"+$2+\"\\\" field or getter method in class " + c.getName() + ".\"); }");
-
+        // 上面都在拼凑代码字符
         // make class
         long id = WRAPPER_CLASS_COUNTER.getAndIncrement();
         ClassGenerator cc = ClassGenerator.newInstance(cl);
@@ -253,6 +253,7 @@ public abstract class Wrapper {
         cc.addMethod(c3.toString());
 
         try {
+            // 编译成 class 字节码， 并载入到 JVM 内存
             Class<?> wc = cc.toClass();
             // setup static field.
             wc.getField("pts").set(null, pts);
