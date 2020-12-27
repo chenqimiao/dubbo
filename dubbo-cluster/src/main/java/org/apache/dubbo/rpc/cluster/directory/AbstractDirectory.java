@@ -41,6 +41,8 @@ import static org.apache.dubbo.rpc.cluster.Constants.REFER_KEY;
 /**
  * Abstract implementation of Directory: Invoker list returned from this Directory's list method have been filtered by Routers
  *
+ * 服务目录，类似于注册中心，但有区别，前者是针对单个客户端的
+ *
  */
 public abstract class AbstractDirectory<T> implements Directory<T> {
 
@@ -80,10 +82,10 @@ public abstract class AbstractDirectory<T> implements Directory<T> {
 
     @Override
     public List<Invoker<T>> list(Invocation invocation) throws RpcException {
+        // 用于陈列 invoker ，具体的实现由子类完成
         if (destroyed) {
             throw new RpcException("Directory already destroyed .url: " + getUrl());
         }
-
         return doList(invocation);
     }
 
